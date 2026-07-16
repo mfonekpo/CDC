@@ -1,0 +1,20 @@
+services:
+  statsd:
+    image: prom/statsd-exporter:master-distroless
+    container_name: statsd_service
+
+    restart: unless-stopped
+
+    networks:
+      - platform-network
+
+    expose:
+      - "9102"
+
+    ports:
+      - "9125:9125/udp"
+
+networks:
+  platform-network:
+    driver: bridge
+    external: true
