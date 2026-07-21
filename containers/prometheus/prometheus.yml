@@ -5,19 +5,7 @@ global:
   scrape_timeout: 10s # scrape_timeout is set to the global default (10s).
 
 remote_write:
-  - url: "http://alloy:12345/api/v1/metrics/instance/hosted-prometheus/write"
-
-# Alertmanager configuration
-# alerting:
-#   alertmanagers:
-#     - static_configs:
-#         - targets:
-          # - alertmanager:9093
-
-# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
-rule_files:
-  # - "first_rules.yml"
-  # - "second_rules.yml"
+  - url: "http://alloy:9999/api/v1/metrics/write"
 
 # A scrape configuration containing exactly one endpoint to scrape:
 # Here it's Prometheus itself.
