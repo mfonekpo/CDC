@@ -4,6 +4,9 @@ global:
   evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
   scrape_timeout: 10s # scrape_timeout is set to the global default (10s).
 
+remote_write:
+  - url: "http://alloy:12345/api/v1/metrics/instance/hosted-prometheus/write"
+
 # Alertmanager configuration
 # alerting:
 #   alertmanagers:
@@ -44,3 +47,10 @@ scrape_configs:
       - targets: ["statsd:9102"]
         labels:
           app: "statsd_exporter"
+
+  # Job for grafana alloy
+  - job_name: "grafana_alloy"
+    static_configs:
+      - targets: ["alloy:12345"]
+        labels:
+          app: "grafana_alloy"
