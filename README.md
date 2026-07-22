@@ -20,3 +20,6 @@ The goal of this project is to build a robust data pipeline observability framew
 
 Grafana Dashboard monitoring metrics from prometheus
 ![grafana_dashboard](./images/Infrastructure%20&%20Cloud%20Overview.png)
+
+Prometheus UI monitoring service health
+![prometheus_dhasboard](./images/service_health.png)
