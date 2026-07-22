@@ -1,9 +1,9 @@
 up:
 	docker compose -f  "./containers/prometheus/docker-compose.yml" up --wait
 	docker compose -f  "./containers/proxy_server/docker-compose.yml" up --wait
-	docker compose -f  "./containers/airflow/docker-compose.yaml" up --wait
 	docker compose -f "./containers/statsd/docker-compose.yml" up --wait
 	docker compose -f "./containers/grafana_alloy/docker-compose.yml" up --wait
+	docker compose -f  "./containers/airflow/docker-compose.yaml" up --wait
 
 down:
 	docker compose -f  "./containers/prometheus/docker-compose.yml" down
