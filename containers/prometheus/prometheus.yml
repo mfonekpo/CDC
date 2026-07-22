@@ -4,17 +4,8 @@ global:
   evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
   scrape_timeout: 10s # scrape_timeout is set to the global default (10s).
 
-# Alertmanager configuration
-# alerting:
-#   alertmanagers:
-#     - static_configs:
-#         - targets:
-          # - alertmanager:9093
-
-# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
-rule_files:
-  # - "first_rules.yml"
-  # - "second_rules.yml"
+remote_write:
+  - url: "http://alloy:9999/api/v1/metrics/write"
 
 # A scrape configuration containing exactly one endpoint to scrape:
 # Here it's Prometheus itself.
@@ -44,3 +35,10 @@ scrape_configs:
       - targets: ["statsd:9102"]
         labels:
           app: "statsd_exporter"
+
+  # Job for grafana alloy
+  - job_name: "grafana_alloy"
+    static_configs:
+      - targets: ["alloy:12345"]
+        labels:
+          app: "grafana_alloy"

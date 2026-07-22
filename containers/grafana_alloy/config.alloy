@@ -1,0 +1,20 @@
+prometheus.receive_http "api" {
+  http {
+    listen_address = "0.0.0.0"
+    listen_port = 9999
+  }
+  forward_to = [prometheus.remote_write.metrics_hosted_prometheus.receiver]
+}
+
+
+prometheus.remote_write "metrics_hosted_prometheus" {
+   endpoint {
+      name = "hosted-prometheus"
+      url  = "https://prometheus-prod-65-prod-eu-west-2.grafana.net/api/prom/push"
+    
+      basic_auth {
+        username = "3361592"
+        password = env("GRAFANA_TOKEN")
+      }
+   }
+}
