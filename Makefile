@@ -1,5 +1,6 @@
 up:
 	docker compose -f  "./containers/prometheus/docker-compose.yml" up --wait
+	docker compose -f "./containers/postgres/docker-compose.yml" up --wait
 	docker compose -f  "./containers/proxy_server/docker-compose.yml" up --wait
 	docker compose -f "./containers/statsd/docker-compose.yml" up --wait
 	docker compose -f "./containers/grafana_alloy/docker-compose.yml" up --wait
@@ -11,6 +12,7 @@ down:
 	docker compose -f  "./containers/airflow/docker-compose.yaml" down
 	docker compose -f "./containers/statsd/docker-compose.yml" down
 	docker compose -f "./containers/grafana_alloy/docker-compose.yml" down
+	docker compose -f "./containers/postgres/docker-compose.yml" down
 
 ps:
 	docker compose -f  "./containers/proxy_server/docker-compose.yml" ps
@@ -18,6 +20,7 @@ ps:
 	docker compose -f  "./containers/airflow/docker-compose.yaml" ps
 	docker compose -f "./containers/statsd/docker-compose.yml" ps
 	docker compose -f "./containers/grafana_alloy/docker-compose.yml" ps
+	docker compose -f "./containers/postgres/docker-compose.yml" ps
 recreate:
 	docker compose -f "./containers/prometheus/docker-compose.yml" up -d --force-recreate prometheus
 
@@ -36,6 +39,9 @@ logs-statsd:
 logs-alloy:
 	docker compose -f "./containers/grafana_alloy/docker-compose.yml" logs -f
 
+logs-postgres:
+	docker compose -f "./containers/postgres/docker-compose.yml" logs -f
+
 restart:
 	down up
 
@@ -50,3 +56,4 @@ help:
 	@echo "  make logs-airflow    Show Airflow logs"
 	@echo "  make logs-statsd     Show Statsd logs"
 	@echo "  make logs-alloy      Show Alloy logs"
+	@echo "  make logs-postgres   Show Postgres logs"
