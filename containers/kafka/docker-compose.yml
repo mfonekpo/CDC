@@ -2,6 +2,8 @@ services:
   kafka:
     image: apache/kafka:4.3.1
     container_name: kafka_service
+    volumes:
+      - kafka_data:/var/lib/kafka/data
     ports:
       - "9092:9092"
       - "9093:9093"
@@ -17,9 +19,17 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_BROKER_ID: 1
+      KAFKA_COMPRESSION_TYPE: "zstd"
+      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
 
 
 networks:
   platform-network:
     driver: bridge
+    external: true
+
+volumes:
+  kafka_data:
     external: true
