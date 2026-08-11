@@ -9,9 +9,9 @@ up:
 	docker compose -f  "./containers/proxy_server/docker-compose.yml" up --wait
 	docker compose -f  "./containers/statsd/docker-compose.yml" up --wait
 	docker compose -f  "./containers/grafana_alloy/docker-compose.yml" up --wait
-	docker compose -f  "./containers/airflow/docker-compose.yaml" up --build --wait
 	docker compose -f  "./containers/kafka/docker-compose.yml" up --wait
 	docker compose -f  "./containers/kafka-connect/docker-compose.yml" up --wait
+	docker compose -f  "./containers/airflow/docker-compose.yaml" up --build --wait
 
 down:
 	docker compose -f  "./containers/prometheus/docker-compose.yml" down
@@ -20,6 +20,8 @@ down:
 	docker compose -f  "./containers/statsd/docker-compose.yml" down
 	docker compose -f  "./containers/grafana_alloy/docker-compose.yml" down
 	docker compose -f  "./containers/postgres/docker-compose.yml" down
+	docker compose -f  "./containers/kafka/docker-compose.yml" down
+	docker compose -f  "./containers/kafka-connect/docker-compose.yml" down
 
 ps:
 	docker compose -f  "./containers/proxy_server/docker-compose.yml" ps
@@ -28,6 +30,8 @@ ps:
 	docker compose -f  "./containers/statsd/docker-compose.yml" ps
 	docker compose -f  "./containers/grafana_alloy/docker-compose.yml" ps
 	docker compose -f  "./containers/postgres/docker-compose.yml" ps
+	docker compose -f  "./containers/kafka/docker-compose.yml" ps
+	docker compose -f  "./containers/kafka-connect/docker-compose.yml" ps
 recreate:
 	docker compose -f  "./containers/prometheus/docker-compose.yml" up -d --force-recreate prometheus
 
