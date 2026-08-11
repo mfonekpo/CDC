@@ -35,6 +35,27 @@ services:
       start_period: 30s
 
 
+  replication-postgres:
+    image: postgres:16
+    container_name: replication_postgres
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: rep_db
+
+    networks:
+      - platform-network
+
+    restart: unless-stopped
+
+    ports:
+      - "5435:5432"
+
+    depends_on:
+      - cdc-postgres
+
+
 networks:
   platform-network:
     driver: bridge
