@@ -70,21 +70,11 @@ def build_event_id(msg):
     )
 
 
-def insert_data(payload, conn):
-    ops = payload.get('op')
-
-
-    if ops not in {"c", "r"}:
-        raise NotImplementedError(
-            f"Operation {ops} is not implemented yet"
-        )
+def insert_op(payload, conn):
 
     row = payload.get("after")
-
     if row is None:
-        raise ValueError(
-            f"Operation {ops} has no 'after' payload"
-        )
+        raise ValueError("Insert payload has no 'after' field")
 
     with conn.cursor() as cursor:
 
@@ -121,6 +111,53 @@ def insert_data(payload, conn):
             row,
         )
 
+def update_op(payload, conn):
+
+    row = payload.get("after")
+
+    if row is None:
+        raise ValueError("Update payload has no 'after' field")
+
+    with conn.cursor() as cursor:
+        cursor.execute(
+            """
+            UPDATE rep_schema.cdc
+            SET aqi = %(aqi)s,
+                date = %(date)s,
+                co_value = %(co_value)s,
+                ozone_value = %(ozone_value)s
+            WHERE id = %(id)s
+            """,
+            row,
+        )
+
+        if cursor.rowcount != 1:
+            raise ValueError(
+                f"Expected to update 1 row, but updated {cursor.rowcount}"
+            )
+
+
+def delete_op(payload, conn):
+
+    row = payload.get("before")
+
+    if row is None:
+        raise ValueError("Delete payload has no 'before' field")
+
+    with conn.cursor() as cursor:
+        cursor.execute(
+            """
+            DELETE FROM rep_schema.cdc
+            WHERE id = %(id)s
+            """,
+            row,
+        )
+
+        if cursor.rowcount != 1:
+            raise ValueError(
+                f"Expected to delete 1 row, but deleted {cursor.rowcount}"
+            )
+
 
 def main():
     consumer = subscribe()
@@ -144,10 +181,28 @@ def main():
             except (json.JSONDecodeError, ValueError) as e:
                 print(f"Invalid Debezium event {event_id}: {e}")
                 continue
+
             try:
-                insert_data(payload, conn)
-                # PostgresSQL transaction succeeded
-                conn.commit()
+                ops = payload.get('op')
+
+                if ops in {"c", "r"}:
+                    insert_op(payload, conn)
+                    # PostgresSQL transaction succeeded
+                    conn.commit()
+
+                elif ops in {"u"}:
+                    update_op(payload, conn)
+                    # PostgresSQL transaction succeeded
+                    conn.commit()
+
+                elif ops in {"d"}:
+                    delete_op(payload, conn)
+                    # PostgresSQL transaction succeeded
+                    conn.commit()
+
+            except ValueError as e:
+                print(f"PostgresQL error for {event_id}: {e}")
+                continue
 
             except psycopg.Error as e:
                 conn.rollback()
