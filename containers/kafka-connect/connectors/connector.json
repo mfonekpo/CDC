@@ -1,0 +1,19 @@
+{
+  "name": "snowflake-cdc-sink",
+
+  "config": {
+    "connector.class": "com.snowflake.kafka.connector.SnowflakeStreamingSinkConnector",
+    "topics": "cdc.cdc_schema.cdc",
+    "snowflake.url.name": "CYNMYKG-XA63650.snowflakecomputing.com",
+    "snowflake.user.name": "TERRAFORM_USER",
+    "snowflake.role.name": "TERRAFORM_ROLE",
+    "snowflake.database.name": "CDC_DB",
+    "snowflake.schema.name": "AQI_SCHEMA",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+    "errors.log.enable": "true",
+    "errors.tolerance": "none",
+    "snowflake.streaming.validate.compatibility.with.classic": "false"
+  }
+}

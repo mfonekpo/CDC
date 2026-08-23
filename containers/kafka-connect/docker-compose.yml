@@ -1,6 +1,9 @@
 services:
   kafka-connect:
-    image: debezium/connect:3.0.0.Final
+    # image: debezium/connect:3.0.0.Final
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: kafka_connect
     restart: unless-stopped
     networks:
@@ -22,7 +25,8 @@ services:
       KEY_CONVERTER_SCHEMAS_ENABLE: "false"
       VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
       REST_ADVERTISED_HOST_NAME: kafka-connect
-      # - CONNECT_PLUGIN_PATH: /kafka/connect
+      CONNECT_PLUGINS_DIR: kafka/connect
+      CONNECT_PLUGIN_PATH: /kafka/connect
 
 
 networks:
