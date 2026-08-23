@@ -1,0 +1,17 @@
+services:
+  postgres-consumer:
+    build:
+      context: ../../
+      dockerfile: containers/postgres_consumer/Dockerfile
+    container_name: postgres_consumer
+    restart: unless-stopped
+    networks:
+      - platform-network
+
+    env_file:
+      - ../../.env
+
+
+networks:
+  platform-network:
+    external: true
