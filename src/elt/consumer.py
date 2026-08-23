@@ -9,7 +9,7 @@ from utils.postgres_conf import create_replication_connection
 # ---------------------------------------------------------
 
 KAFKA_CONFIG = {
-    'bootstrap.servers': 'localhost:29092',
+    'bootstrap.servers': 'kafka:9092',
     'group.id': 'replication-consumer',
     'auto.offset.reset': 'earliest',
     'enable.auto.commit': False
