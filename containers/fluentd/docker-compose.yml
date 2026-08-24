@@ -1,0 +1,26 @@
+services:
+  fluentd-service:
+    build:
+      context: ../../
+      dockerfile: containers/fluentd/Dockerfile
+    container_name: fluentd
+
+    ports:
+      - "24224:24224"
+
+    volumes:
+      - ./conf/fluent.conf:/fluentd/etc/fluent.conf:ro
+
+    environment:
+      FLUENTD_CONF: fluent.conf
+
+    networks:
+      - platform-network
+
+    restart: unless-stopped
+
+
+networks:
+  platform-network:
+    driver: bridge
+    external: true
