@@ -1,0 +1,1 @@
+from fluent/fluentd:edge-debian
