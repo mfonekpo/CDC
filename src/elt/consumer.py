@@ -2,6 +2,7 @@ import json
 from confluent_kafka import Consumer, KafkaException
 import psycopg
 from utils.postgres_conf import create_replication_connection
+from utils.logging_conf import logger
 
 
 # ---------------------------------------------------------
@@ -19,10 +20,17 @@ KAFKA_TOPIC = 'cdc.cdc_schema.cdc'
 
 
 def connect_to_db():
+    logger.info("Connecting to the replication database")
     return create_replication_connection()
 
 
 def subscribe() -> Consumer:
+    logger.info(
+        "Subscribing to Kafka topic",
+        extra={
+            "topic": KAFKA_TOPIC
+        }
+    )
     consumer = Consumer(KAFKA_CONFIG)
     consumer.subscribe([KAFKA_TOPIC])
     return consumer
@@ -62,7 +70,6 @@ def parse_event(msg) -> dict:
 # ---------------------------------------------------------
 
 def build_event_id(msg):
-
     return (
         f"{msg.topic()}:"
         f"{msg.partition()}:"
@@ -71,6 +78,8 @@ def build_event_id(msg):
 
 
 def insert_op(payload, conn):
+
+    logger.info("Running data insertion operation")
 
     row = payload.get("after")
     if row is None:
@@ -113,6 +122,8 @@ def insert_op(payload, conn):
 
 def update_op(payload, conn):
 
+    logger.info("Running data update operation")
+
     row = payload.get("after")
 
     if row is None:
@@ -138,6 +149,8 @@ def update_op(payload, conn):
 
 
 def delete_op(payload, conn):
+
+    logger.info("Running data deletion operation")
 
     row = payload.get("before")
 
@@ -171,7 +184,16 @@ def main():
                 continue
 
             if msg.error():
-                print(f"Consumer error: {msg.error()}")
+                logger.error(
+                    "kafka consumer error",
+                    extra={
+                        "error": msg.error(),
+                        "error_code": msg.error().code,
+                        "topic": msg.topic(),
+                        "partition": msg.partition(),
+                        "offset": msg.offset(),
+                    }
+                )
                 continue
 
             event_id = build_event_id(msg)
@@ -179,34 +201,68 @@ def main():
             try:
                 payload = parse_event(msg)
             except (json.JSONDecodeError, ValueError) as e:
-                print(f"Invalid Debezium event {event_id}: {e}")
+                logger.exception(
+                    "Failed to parse kafka event",
+                    extra={
+                        "event_id": event_id,
+                        "topic": msg.topic(),
+                        "partition": msg.partition(),
+                        "offset": msg.offset(),
+                    }
+                )
                 continue
 
             try:
                 ops = payload.get('op')
 
                 if ops in {"c", "r"}:
+                    logger.info(f"ops: {ops}")
                     insert_op(payload, conn)
-                    # PostgresSQL transaction succeeded
-                    conn.commit()
 
                 elif ops in {"u"}:
                     update_op(payload, conn)
-                    # PostgresSQL transaction succeeded
-                    conn.commit()
 
                 elif ops in {"d"}:
                     delete_op(payload, conn)
-                    # PostgresSQL transaction succeeded
-                    conn.commit()
 
-            except ValueError as e:
-                print(f"PostgresQL error for {event_id}: {e}")
+                conn.commit()
+
+                logger.info(
+                    "PostgreSQL transaction succeeded",
+                    extra={
+                        "event_id": event_id,
+                        "topic": msg.topic(),
+                        "partition": msg.partition(),
+                        "offset": msg.offset(),
+                        "operation": ops
+                    }
+                )
+
+            except ValueError:
+                logger.exception(
+                    "database ops error",
+                    extra={
+                        "event_id": event_id,
+                        "topic": msg.topic(),
+                        "partition": msg.partition(),
+                        "offset": msg.offset(),
+                        "operation": ops
+                    }
+                )
                 continue
 
             except psycopg.Error as e:
                 conn.rollback()
-                print(f"PostgresQL error for {event_id}: {e}")
+                logger.exception(
+                    "database error",
+                    extra={
+                        "event_id": event_id,
+                        "topic": msg.topic(),
+                        "partition": msg.partition(),
+                        "offset": msg.offset(),
+                        "operation": ops
+                    }
+                )
                 continue
 
             try:
@@ -217,13 +273,28 @@ def main():
                     asynchronous=False,
                 )
 
-                print(
-                    f"Successfully processed "
-                    f"{event_id}"
+                logger.info(
+                    "Successfully processed event",
+                    extra={
+                        "event_id": event_id,
+                        "topic": msg.topic(),
+                        "partition": msg.partition(),
+                        "offset": msg.offset(),
+                        "operation": ops
+                    }
                 )
 
             except KafkaException as e:
-                print(f"Kafka commit failed for event {event_id}: {e}")
+                logger.exception(
+                    "kafka commit error",
+                    extra={
+                        "event_id": event_id,
+                        "topic": msg.topic(),
+                        "partition": msg.partition(),
+                        "offset": msg.offset(),
+                        "operation": ops
+                    }
+                )
 
     finally:
         conn.close()
@@ -231,4 +302,5 @@ def main():
 
 
 if __name__ == "__main__":
+    logger.info("Postgres consumer started for replication")
     main()
