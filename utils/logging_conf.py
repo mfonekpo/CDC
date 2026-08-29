@@ -1,6 +1,7 @@
 import logging
 import sys
 from pathlib import Path
+from utils.log_formatter import CustomJsonFormatter
 
 
 LOG_DIR = Path("logs")
@@ -11,7 +12,7 @@ MONITORING_LOG_FILE = LOG_DIR / "monitoring.log"
 logger = logging.getLogger("__name__")
 logger.setLevel(logging.DEBUG)
 
-formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+formatter = CustomJsonFormatter()
 
 if not logger.handlers:
     # Console
