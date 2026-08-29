@@ -4,14 +4,22 @@ services:
       context: ../../
       dockerfile: containers/postgres_consumer/Dockerfile
     container_name: postgres_consumer
-    restart: unless-stopped
+    
     networks:
       - platform-network
 
     env_file:
       - ../../.env
 
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: "localhost:24224"
+        tag: docker.postgres_consumer
+
+    restart: unless-stopped
 
 networks:
   platform-network:
+    driver: bridge
     external: true
