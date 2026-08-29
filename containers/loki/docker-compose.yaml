@@ -1,0 +1,23 @@
+services:
+  loki:
+    image: grafana/loki:main-21d9d6b
+    container_name: loki_service
+    ports:
+      - "3100:3100"
+    restart: unless-stopped
+    networks:
+      - platform-network
+
+    volumes:
+      - loki_data:/loki
+      - ./config/loki_config.yaml:/etc/loki/loki_config.yaml:ro
+
+
+volumes:
+  loki_data:
+    external: true
+
+networks:
+  platform-network:
+    driver: bridge
+    external: true
