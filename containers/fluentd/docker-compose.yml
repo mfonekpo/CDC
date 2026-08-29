@@ -11,6 +11,9 @@ services:
     volumes:
       - ./conf/fluent.conf:/fluentd/etc/fluent.conf:ro
 
+    env_file:
+      - ../../.env
+
     environment:
       FLUENTD_CONF: fluent.conf
 
