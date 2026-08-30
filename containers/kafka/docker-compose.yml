@@ -11,6 +11,13 @@ services:
     restart: unless-stopped
     networks:
       - platform-network
+
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: "localhost:24224"
+        tag: docker.kafka
+
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: "broker,controller"
