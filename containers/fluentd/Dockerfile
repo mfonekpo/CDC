@@ -5,6 +5,7 @@ USER root
 RUN mkdir -p /home/fluent/.local/share/gem/ruby/3.4.0/cache \
     && chown -R fluent:fluent /home/fluent/.local
     
-RUN fluent-gem install fluent-plugin-grafana-loki
+RUN fluent-gem install fluent-plugin-grafana-loki \
+    && fluent-gem install fluent-plugin-multi-format-parser
 
 USER fluent
