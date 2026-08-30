@@ -11,6 +11,12 @@ services:
     ports:
       - "8083:8083"
 
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: "localhost:24224"
+        tag: docker.kafka_connect
+
     environment:
       BOOTSTRAP_SERVERS: "kafka:9092"
       GROUP_ID: kafka-connect
