@@ -27,6 +27,12 @@ services:
     ports:
       - "5434:5432"
 
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: "localhost:24224"
+        tag: docker.aqi_database
+
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "cdc", "-d", "cdc_db"]
       interval: 1m30s
@@ -54,6 +60,12 @@ services:
 
     depends_on:
       - cdc-postgres
+
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: "localhost:24224"
+        tag: docker.replication_database
 
     volumes:
       - replication_data:/var/lib/postgresql/data
