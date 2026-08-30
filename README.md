@@ -18,6 +18,8 @@ The goal of this project is to build a robust data pipeline observability framew
 * [ ] Build Grafana dashboards for lag tracking and throughput
 * [ ] Add alerting rules for pipeline failures
 
+![Logging Architecture](./images/cdc_pipeline_centralized_logging_architecture.svg)
+
 Grafana Dashboard monitoring metrics from prometheus
 ![grafana_dashboard](./images/Infrastructure%20&%20Cloud%20Overview.png)
 
