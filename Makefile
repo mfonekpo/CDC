@@ -54,6 +54,20 @@ up-codespaces:
 	docker compose -f "./containers/airflow/docker-compose.yaml" up --build --wait
 	docker compose -f "./containers/postgres_consumer/docker-compose.yml" up --build --wait
 
+
+down-codespaces:
+	docker compose -f "./containers/loki/docker-compose.yaml" down
+	docker compose -f "./containers/fluentd/docker-compose.yml" down
+	docker compose -f "./containers/prometheus/docker-compose.yml" down
+	docker compose -f "./containers/postgres/docker-compose.yml" down 
+	docker compose -f "./containers/proxy_server/docker-compose.yml" down 
+	docker compose -f "./containers/statsd/docker-compose.yml" down 
+	docker compose -f "./containers/grafana_alloy/docker-compose.yml" down 
+	docker compose -f "./containers/kafka/docker-compose.yml" down
+	docker compose -f "./containers/kafka-connect/docker-compose.yml" down
+	docker compose -f "./containers/airflow/docker-compose.yaml" down
+	docker compose -f "./containers/postgres_consumer/docker-compose.yml" down
+
 recreate:
 	docker compose -f  "./containers/prometheus/docker-compose.yml" up -d --force-recreate prometheus
 
