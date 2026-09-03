@@ -1,0 +1,34 @@
+pipeline_name: "source-postgres-ingestion"
+
+source:
+  type: postgres
+  config:
+    host_port: "localhost:5434"
+    database: "cdc_db"
+    username: "datahub_ingest"
+    password: "root"
+
+    env: "PROD"
+    platform_instance: "source-postgres"
+
+    schema_pattern:
+      allow:
+        - "^cdc_schema"
+
+    include_tables: true
+    include_views: true
+    include_stored_procedures: true
+
+    profiling:
+      enabled: false
+
+    include_query_lineage: false
+    include_usage_statistics: false
+
+    stateful_ingestion:
+      enabled: true
+
+sink:
+  type: "datahub-rest"
+  config:
+    server: "http://localhost:8080"
