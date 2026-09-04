@@ -75,6 +75,10 @@ x-airflow-common:
     AIRFLOW__METRICS__STATSD_HOST: statsd
     AIRFLOW__METRICS__STATSD_PORT: 9125
     AIRFLOW__METRICS__STATSD_PREFIX: airflow
+
+    AIRFLOW_DATAHUB_ENABLED: "true"
+    AIRFLOW_DATAHUB_CONN_ID: "datahub_rest_default"
+    AIRFLOW_CONN_DATAHUB_REST_DEFAULT: "datahub-rest://host.docker.internal:18080"
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks
     # See https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/logging-monitoring/check-health.html#scheduler-health-check-server
@@ -161,6 +165,9 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
@@ -176,6 +183,9 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   airflow-dag-processor:
     <<: *airflow-common
     command: dag-processor
@@ -190,6 +200,9 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   airflow-worker:
     <<: *airflow-common
@@ -214,6 +227,9 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   airflow-triggerer:
     <<: *airflow-common
     command: triggerer
@@ -228,6 +244,9 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   airflow-init:
     <<: *airflow-common
