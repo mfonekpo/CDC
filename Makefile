@@ -1,7 +1,7 @@
 .PHONY: \
 	up down ps recreate logs-prometheus logs-nginx logs-airflow \
 	logs-statsd logs-alloy logs-postgres restart help \
-	register
+	register datahub port-forward
 
 up:
 	docker compose -f  "./containers/loki/docker-compose.yaml" up --build --wait
@@ -67,6 +67,13 @@ down-codespaces:
 	docker compose -f "./containers/kafka-connect/docker-compose.yml" down
 	docker compose -f "./containers/airflow/docker-compose.yaml" down
 	docker compose -f "./containers/postgres_consumer/docker-compose.yml" down
+
+# this command is meant to be run in a codespace environment.
+datahub:
+	datahub docker quickstart --quickstart-compose-file "containers/datahub/docker-compose.yml"
+
+port-forward:
+	gh codespace ports forward 8080:18080 -c improved-orbit-pw6jqp4jpp6fr456
 
 recreate:
 	docker compose -f  "./containers/prometheus/docker-compose.yml" up -d --force-recreate prometheus
