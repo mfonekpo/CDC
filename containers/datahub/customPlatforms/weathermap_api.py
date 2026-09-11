@@ -58,7 +58,7 @@ api_dataset = Dataset(
         "load_function": "load_data",
         "target_table": "cdc_db.cdc_schema.cdc",
         "load_pattern": "hourly API pull",
-        "idempotency_rule": "ON CONFLICT (date) DO NOTHING",
+        "downstream_load_idempotency_rule": "ON CONFLICT (date) DO NOTHING",
         "secret_env_var": "WEATHERAPI",
         "location_env_vars": "LAT,LONG",
     },

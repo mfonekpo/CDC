@@ -1,0 +1,34 @@
+pipeline_name: "replication-postgres-ingestion"
+
+source:
+  type: postgres
+  config:
+    host_port: "localhost:5435"
+    database: "rep_db"
+    username: "datahub_ingest"
+    password: "root"
+
+    env: "PROD"
+    platform_instance: "replication-postgres"
+
+    schema_pattern:
+      allow:
+        - "^rep_schema"
+
+    include_tables: true
+    include_views: true
+    include_stored_procedures: true
+
+    profiling:
+      enabled: false
+
+    include_query_lineage: false
+    include_usage_statistics: false
+
+    stateful_ingestion:
+      enabled: true
+
+sink:
+  type: "datahub-rest"
+  config:
+    server: "http://localhost:18080"

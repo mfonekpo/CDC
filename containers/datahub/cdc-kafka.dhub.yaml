@@ -1,0 +1,27 @@
+pipeline_name: "cdc-kafka-metadata-ingestion"
+
+source: 
+  type: kafka
+  config:
+    env: "PROD"
+    platform_instance: "aqi-kafka-local"
+
+    connection:
+      bootstrap: "localhost:29092"
+      consumer_config:
+        security.protocol: "PLAINTEXT"
+
+    topic_patterns:
+      allow:
+        - "^cdc\\.cdc_schema\\.cdc$"
+
+    profiling:
+      enabled: false
+
+    stateful_ingestion:
+      enabled: true
+
+sink:
+  type: datahub-rest
+  config:
+    server: "http://127.0.0.1:18080"
