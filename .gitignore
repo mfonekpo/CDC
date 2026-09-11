@@ -116,3 +116,5 @@ terraform.tfstate.backup
 
 # snowflake sink jar file
 *.jar
+
+*.p8
