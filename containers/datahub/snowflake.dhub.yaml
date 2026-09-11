@@ -1,0 +1,36 @@
+pipeline_name: "snowflake-ingestion"
+
+source:
+  type: "snowflake"
+  config:
+    account_id: "${SNOWFLAKE_ACCOUNT_ID}"
+    warehouse: '"cdc-warehouse"'
+    username: "TERRAFORM_USER"
+    role: "TERRAFORM_ROLE"
+
+    authentication_type: KEY_PAIR_AUTHENTICATOR
+    private_key_path: "./tf_key.p8"
+
+    env: "PROD"
+    platform_instance: "cdc-snowflake"
+
+    database_pattern:
+      allow:
+        - "CDC_DB"
+
+    schema_pattern:
+      allow:
+        - "AQI_SCHEMA"
+
+    include_tables: true
+    include_views: true
+    include_streams: true
+    include_tasks: true
+
+    profiling:
+      enabled: false
+
+sink:
+  type: "datahub-rest"
+  config:
+    server: "http://127.0.0.1:18080"

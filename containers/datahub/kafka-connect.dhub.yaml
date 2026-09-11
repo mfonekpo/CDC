@@ -1,0 +1,15 @@
+pipeline_name: "kafka-connect-ingestion"
+
+source:
+  type: "kafka-connect"
+  config:
+    connect_uri: "http://localhost:8083"
+    cluster_name: "cdc-kafka-connect"
+    platform_instance: "cdc-kafka-connect"
+    env: "PROD"
+
+
+sink:
+  type: "datahub-rest"
+  config:
+    server: "http://localhost:18080"
