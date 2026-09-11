@@ -1,7 +1,9 @@
 .PHONY: \
 	up down ps recreate logs-prometheus logs-nginx logs-airflow \
 	logs-statsd logs-alloy logs-postgres restart help \
-	register datahub port-forward
+	register datahub port-forward ingest-postgres \
+	postgres-preview ingest-api kafka-ingest kafka-preview \
+	kafka-lineage kafka-connect-preview kafka-connect-ingest
 
 up:
 	docker compose -f  "./containers/loki/docker-compose.yaml" up --build --wait
@@ -46,7 +48,46 @@ datahub:
 	datahub docker quickstart --quickstart-compose-file "containers/datahub/docker-compose.yml"
 
 port-forward:
-	gh codespace ports forward 8080:18080 -c improved-orbit-pw6jqp4jpp6fr456
+	gh codespace ports forward 8080:18080 -c super-duper-waddle-grp4w7j44gghv5gp
+
+ingest-postgres:
+	datahub ingest -c "containers/datahub/source-postgres.dhub.yaml"
+
+postgres-preview:
+	datahub ingest -c "containers/datahub/source-postgres.dhub.yaml" --preview --dry-run
+
+ingest-api:
+	python3 "containers/datahub/customPlatforms/weathermap_api.py"
+
+kafka-ingest:
+	datahub ingest -c "containers/datahub/cdc-kafka.dhub.yaml"
+
+kafka-preview:
+	datahub ingest -c "containers/datahub/cdc-kafka.dhub.yaml" --preview --dry-run
+
+kafka-connect-preview:
+	datahub ingest -c "containers/datahub/kafka-connect.dhub.yaml" --preview --dry-run
+
+kafka-connect-ingest:
+	datahub ingest -c "containers/datahub/kafka-connect.dhub.yaml"
+
+kafka-lineage:
+	python3 "containers/datahub/customPlatforms/kafka_lineage.py"
+
+replication-preview:
+	datahub ingest -c "containers/datahub/replication-postgres.dhub.yaml" --preview --dry-run
+
+replication-ingest:
+	datahub ingest -c "containers/datahub/replication-postgres.dhub.yaml"
+
+kafka-rep:
+	python3 "containers/datahub/customPlatforms/kafka_rep_db_lineage.py"
+
+snowflake-preview:
+	datahub ingest -c "containers/datahub/snowflake.dhub.yaml" --preview --dry-run
+
+snowflake-ingest:
+	datahub ingest -c "containers/datahub/snowflake.dhub.yaml"
 
 recreate:
 	docker compose -f  "./containers/prometheus/docker-compose.yml" up -d --force-recreate prometheus
