@@ -36,6 +36,8 @@ Logs and metrics
 
 ![high level architecture](./images/cdc_pipeline-architecture.svg)
 
+![metadata management architecture design](./images/metadata_management_architecture..svg)
+
 ## Repository Layout
 
 ```text
@@ -838,6 +840,8 @@ Important modeling decision:
 
 `fetch.py` and `load.py` are implementation details inside the Airflow task. The Airflow task `producer_dag.load` is the job DataHub should track because it is the scheduled, monitored, retryable execution unit.
 
+Ingestion recipes configure DataHub connectors to discover metadata and supported lineage from your systems. The scripts in `customPlatforms` add custom assets, such as the OpenWeatherMap API dataset and Python consumer job, and explicitly define relationships between systems. Together, they help DataHub show how data flows through the pipeline. These scripts update DataHub's catalog; the actual data movement is handled by Airflow, Debezium, and the Python consumer.
+
 The custom DataHub scripts are:
 
 | Script                                                         | Purpose                                                                                    |
@@ -905,11 +909,14 @@ containers/grafana_alloy/config.alloy
 
 Architecture images:
 
-![Centralized logging architecture](./images/cdc_pipeline_centralized_logging_architecture.svg)
+![Centralized logging architecture](./images/cdc_pipeline_centralized_logging_archi.svg)
 
 ![Grafana dashboard](<./images/Infrastructure%20&%20Cloud%20Overview.png>)
 
 ![Prometheus service health](./images/service_health.png)
+
+Data Lineage Image:
+![data lineage image](./images/complete_cdc_lineage.png)
 
 ## Tradeoffs and Lessons Learned
 
