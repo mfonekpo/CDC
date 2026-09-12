@@ -38,6 +38,9 @@ Logs and metrics
 
 ![metadata management architecture design](./images/metadata_management_architecture..svg)
 
+Data Lineage Image:
+![data lineage image](./images/complete_cdc_lineage.png)
+
 ## Repository Layout
 
 ```text
@@ -915,8 +918,6 @@ Architecture images:
 
 ![Prometheus service health](./images/service_health.png)
 
-Data Lineage Image:
-![data lineage image](./images/complete_cdc_lineage.png)
 
 ## Tradeoffs and Lessons Learned
 
