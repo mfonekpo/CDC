@@ -34,51 +34,7 @@ Logs and metrics
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    api[OpenWeatherMap Air Pollution API]
-    airflow[Airflow producer_dag.load]
-    srcpg[(Source PostgreSQL<br/>cdc_db.cdc_schema.cdc)]
-    debezium[Debezium PostgreSQL Source Connector]
-    kafka[(Kafka Topic<br/>cdc.cdc_schema.cdc)]
-    consumer[Python CDC Consumer]
-    reppg[(Replication PostgreSQL<br/>rep_db.rep_schema.cdc)]
-    sfconnect[Snowflake Kafka Sink Connector]
-    sfraw[(Snowflake Raw CDC Table<br/>CDC_DB.AQI_SCHEMA.cdc.cdc_schema.cdc)]
-    sfstream[Snowflake Stream]
-    sftask[Snowflake Triggered Task]
-    sfclean[(Snowflake Clean Table<br/>AQI_DATA)]
-    datahub[DataHub Metadata Platform]
-    logs[Fluentd + Loki + Grafana Cloud]
-    metrics[Prometheus + StatsD + Grafana Alloy]
-
-    api --> airflow
-    airflow --> srcpg
-    srcpg --> debezium
-    debezium --> kafka
-    kafka --> consumer
-    consumer --> reppg
-    kafka --> sfconnect
-    sfconnect --> sfraw
-    sfraw --> sfstream
-    sfstream --> sftask
-    sftask --> sfclean
-
-    api -. metadata .-> datahub
-    airflow -. metadata .-> datahub
-    srcpg -. metadata .-> datahub
-    kafka -. metadata .-> datahub
-    consumer -. metadata .-> datahub
-    reppg -. metadata .-> datahub
-    sfraw -. metadata .-> datahub
-    sfclean -. metadata .-> datahub
-
-    airflow -. logs .-> logs
-    srcpg -. logs .-> logs
-    kafka -. logs .-> logs
-    consumer -. logs .-> logs
-    airflow -. metrics .-> metrics
-```
+![high level architecture](./images/cdc_pipeline-architecture.svg)
 
 ## Repository Layout
 
