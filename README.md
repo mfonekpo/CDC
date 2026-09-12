@@ -36,7 +36,7 @@ Logs and metrics
 
 ![high level architecture](./images/cdc_pipeline-architecture.svg)
 
-![metadata management architecture design](./images/metadata_management_architecture..svg)
+![metadata management architecture design](./images/metadata_management_architecture.svg)
 
 Data Lineage Image:
 ![data lineage image](./images/complete_cdc_lineage.png)
