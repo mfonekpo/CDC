@@ -174,131 +174,47 @@ def delete_op(payload, conn):
 
 def main():
     consumer = subscribe()
-    conn = connect_to_db()
-
+    conn = None
     try:
-
+        conn = connect_to_db()
         while True:
             msg = consumer.poll(1.0)
             if msg is None:
                 continue
-
             if msg.error():
-                logger.error(
-                    "kafka consumer error",
-                    extra={
-                        "error": msg.error(),
-                        "error_code": msg.error().code,
-                        "topic": msg.topic(),
-                        "partition": msg.partition(),
-                        "offset": msg.offset(),
-                    }
-                )
-                continue
+                raise KafkaException(msg.error())
 
-            event_id = build_event_id(msg)
-
+            context = {"event_id": build_event_id(msg)}
             try:
-                payload = parse_event(msg)
-            except (json.JSONDecodeError, ValueError) as e:
-                logger.exception(
-                    "Failed to parse kafka event",
-                    extra={
-                        "event_id": event_id,
-                        "topic": msg.topic(),
-                        "partition": msg.partition(),
-                        "offset": msg.offset(),
-                    }
-                )
-                continue
+                if msg.value() is not None:
+                    payload = parse_event(msg)
+                    operation = payload["op"]
+                    context["operation"] = operation
+                    with conn.transaction():
+                        if operation in {"c", "r"}:
+                            insert_op(payload, conn)
+                        elif operation == "u":
+                            update_op(payload, conn)
+                        elif operation == "d":
+                            delete_op(payload, conn)
+                else:
+                    # Debezium tombstone; the delete event handles the SQL.
+                    context["operation"] = "tombstone"
 
-            try:
-                ops = payload.get('op')
-
-                if ops in {"c", "r"}:
-                    logger.info(f"ops: {ops}")
-                    insert_op(payload, conn)
-
-                elif ops in {"u"}:
-                    update_op(payload, conn)
-
-                elif ops in {"d"}:
-                    delete_op(payload, conn)
-
-                conn.commit()
-
-                logger.info(
-                    "PostgreSQL transaction succeeded",
-                    extra={
-                        "event_id": event_id,
-                        "topic": msg.topic(),
-                        "partition": msg.partition(),
-                        "offset": msg.offset(),
-                        "operation": ops
-                    }
-                )
-
-            except ValueError:
-                logger.exception(
-                    "database ops error",
-                    extra={
-                        "event_id": event_id,
-                        "topic": msg.topic(),
-                        "partition": msg.partition(),
-                        "offset": msg.offset(),
-                        "operation": ops
-                    }
-                )
-                continue
-
-            except psycopg.Error as e:
-                conn.rollback()
-                logger.exception(
-                    "database error",
-                    extra={
-                        "event_id": event_id,
-                        "topic": msg.topic(),
-                        "partition": msg.partition(),
-                        "offset": msg.offset(),
-                        "operation": ops
-                    }
-                )
-                continue
-
-            try:
-                # Only acknowledge Kafka after
-                # PostgreSQL successfully committed.
-                consumer.commit(
-                    message=msg,
-                    asynchronous=False,
-                )
-
-                logger.info(
-                    "Successfully processed event",
-                    extra={
-                        "event_id": event_id,
-                        "topic": msg.topic(),
-                        "partition": msg.partition(),
-                        "offset": msg.offset(),
-                        "operation": ops
-                    }
-                )
-
-            except KafkaException as e:
-                logger.exception(
-                    "kafka commit error",
-                    extra={
-                        "event_id": event_id,
-                        "topic": msg.topic(),
-                        "partition": msg.partition(),
-                        "offset": msg.offset(),
-                        "operation": ops
-                    }
-                )
-
+                results = consumer.commit(message=msg, asynchronous=False)
+                for result in results:
+                    if result.error is not None:
+                        raise KafkaException(result.error)
+                logger.info("Successfully processed event", extra=context)
+            except Exception:
+                logger.exception("Event failed; stopping consumer", extra=context)
+                raise
     finally:
-        conn.close()
-        consumer.close()
+        try:
+            if conn is not None:
+                conn.close()
+        finally:
+            consumer.close()
 
 
 if __name__ == "__main__":
